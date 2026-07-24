@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* Tailwind v4 defaults dark: to prefers-color-scheme; this makes it respond
+   to a `.dark` class on <html> instead, so ThemeContext can toggle it
+   manually and persist the user's choice. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  }
+}
+
+@layer utilities {
+  /* Thin, unobtrusive scrollbar used inside scrollable panels (tables, drawers) */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-700;
+    border-radius: 9999px;
+  }
+}

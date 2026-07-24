@@ -1,0 +1,394 @@
+{
+  "info": {
+    "name": "FinPilot API",
+    "description": "A modern personal finance tracker API — auth, transactions, categories, budgets, goals, dashboard, analytics, reports, and a financial simulator.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "f1n9110t-0000-4000-8000-000000000000"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8000/api/v1" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "category_id", "value": "1" },
+    { "key": "transaction_id", "value": "1" },
+    { "key": "budget_id", "value": "1" },
+    { "key": "goal_id", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"jane.doe@example.com\",\n  \"password\": \"StrongPass123\",\n  \"full_name\": \"Jane Doe\",\n  \"monthly_income\": \"5500.00\",\n  \"preferred_currency\": \"USD\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', data.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/x-www-form-urlencoded" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "username", "value": "jane.doe@example.com" },
+                { "key": "password", "value": "StrongPass123" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  pm.collectionVariables.set('access_token', data.access_token);",
+                  "  pm.collectionVariables.set('refresh_token', data.refresh_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/logout",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "Get My Profile", "request": { "method": "GET", "url": "{{baseUrl}}/users/me" } },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/me",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Jane A. Doe\",\n  \"monthly_income\": \"6000.00\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/users/me/password",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"current_password\": \"StrongPass123\",\n  \"new_password\": \"EvenStrongerPass456\"\n}"
+            }
+          }
+        },
+        { "name": "Deactivate My Account", "request": { "method": "DELETE", "url": "{{baseUrl}}/users/me" } }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        { "name": "List Categories", "request": { "method": "GET", "url": "{{baseUrl}}/categories" } },
+        {
+          "name": "List Expense Categories",
+          "request": { "method": "GET", "url": "{{baseUrl}}/categories?type=expense" }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/categories",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pet Care\",\n  \"type\": \"expense\",\n  \"icon\": \"paw-print\",\n  \"color\": \"#A855F7\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/categories/{{category_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Pet Expenses\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Category",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/categories/{{category_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Transactions",
+      "item": [
+        {
+          "name": "Create Income Transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"income\",\n  \"amount\": \"5500.00\",\n  \"category_id\": 1,\n  \"description\": \"Monthly salary\",\n  \"transaction_date\": \"2026-07-01\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Expense Transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"expense\",\n  \"amount\": \"84.20\",\n  \"category_id\": 5,\n  \"description\": \"Weekly groceries\",\n  \"transaction_date\": \"2026-07-03\"\n}"
+            }
+          }
+        },
+        {
+          "name": "List Transactions (paginated)",
+          "request": { "method": "GET", "url": "{{baseUrl}}/transactions?page=1&page_size=20" }
+        },
+        {
+          "name": "Filter + Search + Sort Transactions",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/transactions?type=expense&min_amount=20&search=groceries&sort_by=amount&sort_order=desc"
+          }
+        },
+        {
+          "name": "Get Transaction",
+          "request": { "method": "GET", "url": "{{baseUrl}}/transactions/{{transaction_id}}" }
+        },
+        {
+          "name": "Update Transaction",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/transactions/{{transaction_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": \"90.00\"\n}" }
+          }
+        },
+        {
+          "name": "Delete Transaction",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/transactions/{{transaction_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Budgets",
+      "item": [
+        {
+          "name": "Create Budget",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/budgets",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category_id\": 5,\n  \"amount\": \"500.00\",\n  \"period\": \"monthly\",\n  \"start_date\": \"2026-07-01\",\n  \"alert_threshold\": 0.8\n}"
+            }
+          }
+        },
+        { "name": "List Budgets", "request": { "method": "GET", "url": "{{baseUrl}}/budgets" } },
+        {
+          "name": "List Active Budgets",
+          "request": { "method": "GET", "url": "{{baseUrl}}/budgets?active_only=true" }
+        },
+        {
+          "name": "Get Budget Status",
+          "request": { "method": "GET", "url": "{{baseUrl}}/budgets/{{budget_id}}/status" }
+        },
+        { "name": "Get Budget Alerts", "request": { "method": "GET", "url": "{{baseUrl}}/budgets/alerts" } },
+        {
+          "name": "Update Budget",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/budgets/{{budget_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"amount\": \"550.00\"\n}" }
+          }
+        },
+        { "name": "Delete Budget", "request": { "method": "DELETE", "url": "{{baseUrl}}/budgets/{{budget_id}}" } }
+      ]
+    },
+    {
+      "name": "Financial Goals",
+      "item": [
+        {
+          "name": "Create Goal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/goals",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Emergency Fund\",\n  \"description\": \"Three months of living expenses\",\n  \"target_amount\": \"10000.00\",\n  \"target_date\": \"2027-06-01\"\n}"
+            }
+          }
+        },
+        { "name": "List Goals", "request": { "method": "GET", "url": "{{baseUrl}}/goals" } },
+        {
+          "name": "Contribute to Goal",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/goals/{{goal_id}}/contribute",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": \"500.00\",\n  \"transaction_date\": \"2026-07-05\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Goal Progress",
+          "request": { "method": "GET", "url": "{{baseUrl}}/goals/{{goal_id}}/progress" }
+        },
+        {
+          "name": "Update Goal",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/goals/{{goal_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"target_amount\": \"12000.00\"\n}" }
+          }
+        },
+        { "name": "Delete Goal", "request": { "method": "DELETE", "url": "{{baseUrl}}/goals/{{goal_id}}" } }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        { "name": "Overview", "request": { "method": "GET", "url": "{{baseUrl}}/dashboard/overview" } },
+        { "name": "Cash Flow", "request": { "method": "GET", "url": "{{baseUrl}}/dashboard/cash-flow?months=6" } }
+      ]
+    },
+    {
+      "name": "Analytics",
+      "item": [
+        {
+          "name": "Spending by Category",
+          "request": { "method": "GET", "url": "{{baseUrl}}/analytics/spending-by-category" }
+        },
+        {
+          "name": "Income vs Expense",
+          "request": { "method": "GET", "url": "{{baseUrl}}/analytics/income-vs-expense?months=6" }
+        },
+        {
+          "name": "Savings Rate",
+          "request": { "method": "GET", "url": "{{baseUrl}}/analytics/savings-rate?months=6" }
+        },
+        { "name": "Trends", "request": { "method": "GET", "url": "{{baseUrl}}/analytics/trends" } }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Monthly Report",
+          "request": { "method": "GET", "url": "{{baseUrl}}/reports/monthly/2026/7" }
+        },
+        { "name": "Yearly Report", "request": { "method": "GET", "url": "{{baseUrl}}/reports/yearly/2026" } },
+        {
+          "name": "Export CSV",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/reports/export/csv?start_date=2026-01-01&end_date=2026-12-31"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Financial Simulator",
+      "item": [
+        {
+          "name": "Savings Projection",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/simulator/projection",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"starting_balance\": \"1000.00\",\n  \"monthly_contribution\": \"300.00\",\n  \"annual_interest_rate\": 0.045,\n  \"months\": 24\n}"
+            }
+          }
+        },
+        {
+          "name": "Goal Planner (by contribution)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/simulator/goal-planner",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target_amount\": \"10000.00\",\n  \"current_amount\": \"3200.00\",\n  \"monthly_contribution\": \"400.00\",\n  \"annual_interest_rate\": 0.03\n}"
+            }
+          }
+        },
+        {
+          "name": "Goal Planner (by target date)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/simulator/goal-planner",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"target_amount\": \"10000.00\",\n  \"current_amount\": \"3200.00\",\n  \"target_date\": \"2027-06-01\"\n}"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

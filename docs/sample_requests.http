@@ -1,0 +1,376 @@
+### FinPilot API — Sample Requests
+### Works with the VS Code "REST Client" extension or JetBrains' HTTP Client.
+### Run requests top to bottom; @access_token is captured automatically after login.
+
+@baseUrl = http://localhost:8000/api/v1
+
+### Health check
+GET {{baseUrl.replace('/api/v1','')}}/health
+
+### ============================================================
+### AUTHENTICATION
+### ============================================================
+
+### Register a new user
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "jane.doe@example.com",
+  "password": "StrongPass123",
+  "full_name": "Jane Doe",
+  "monthly_income": "5500.00",
+  "preferred_currency": "USD"
+}
+
+### Log in (OAuth2 form login — also what Swagger's "Authorize" button uses)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/x-www-form-urlencoded
+
+username=jane.doe@example.com&password=StrongPass123
+
+@access_token = {{login.response.body.$.access_token}}
+@refresh_token = {{login.response.body.$.refresh_token}}
+
+### Refresh the access token
+POST {{baseUrl}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### Log out (revokes the refresh token)
+POST {{baseUrl}}/auth/logout
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "refresh_token": "{{refresh_token}}"
+}
+
+### ============================================================
+### USERS
+### ============================================================
+
+### Get my profile
+GET {{baseUrl}}/users/me
+Authorization: Bearer {{access_token}}
+
+### Update my profile
+PUT {{baseUrl}}/users/me
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "full_name": "Jane A. Doe",
+  "monthly_income": "6000.00",
+  "preferred_currency": "USD"
+}
+
+### Change my password
+PATCH {{baseUrl}}/users/me/password
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "current_password": "StrongPass123",
+  "new_password": "EvenStrongerPass456"
+}
+
+### ============================================================
+### CATEGORIES
+### ============================================================
+
+### List all categories
+GET {{baseUrl}}/categories
+Authorization: Bearer {{access_token}}
+
+### List expense categories only
+GET {{baseUrl}}/categories?type=expense
+Authorization: Bearer {{access_token}}
+
+### Search categories by name
+GET {{baseUrl}}/categories?search=groc
+Authorization: Bearer {{access_token}}
+
+### Create a custom category
+# @name createCategory
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "name": "Pet Care",
+  "type": "expense",
+  "icon": "paw-print",
+  "color": "#A855F7"
+}
+
+@category_id = {{createCategory.response.body.$.id}}
+
+### Update a category
+PUT {{baseUrl}}/categories/{{category_id}}
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "name": "Pet Expenses"
+}
+
+### Delete a category
+DELETE {{baseUrl}}/categories/{{category_id}}
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### TRANSACTIONS
+### ============================================================
+
+### Create an income transaction
+# @name createIncome
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "type": "income",
+  "amount": "5500.00",
+  "category_id": 1,
+  "description": "Monthly salary",
+  "transaction_date": "2026-07-01"
+}
+
+### Create an expense transaction
+POST {{baseUrl}}/transactions
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "type": "expense",
+  "amount": "84.20",
+  "category_id": 5,
+  "description": "Weekly groceries",
+  "transaction_date": "2026-07-03"
+}
+
+### List transactions (paginated)
+GET {{baseUrl}}/transactions?page=1&page_size=20
+Authorization: Bearer {{access_token}}
+
+### Filter + search + sort transactions
+GET {{baseUrl}}/transactions?type=expense&min_amount=20&search=groceries&sort_by=amount&sort_order=desc
+Authorization: Bearer {{access_token}}
+
+### Get a single transaction
+GET {{baseUrl}}/transactions/1
+Authorization: Bearer {{access_token}}
+
+### Update a transaction
+PUT {{baseUrl}}/transactions/1
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "amount": "90.00",
+  "description": "Weekly groceries (corrected)"
+}
+
+### Delete a transaction
+DELETE {{baseUrl}}/transactions/2
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### BUDGETS
+### ============================================================
+
+### Create a monthly budget for a category
+# @name createBudget
+POST {{baseUrl}}/budgets
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "category_id": 5,
+  "amount": "500.00",
+  "period": "monthly",
+  "start_date": "2026-07-01",
+  "alert_threshold": 0.8
+}
+
+@budget_id = {{createBudget.response.body.$.id}}
+
+### List budgets
+GET {{baseUrl}}/budgets
+Authorization: Bearer {{access_token}}
+
+### List only currently-active budgets
+GET {{baseUrl}}/budgets?active_only=true
+Authorization: Bearer {{access_token}}
+
+### Get computed status for a budget (spent / remaining / alert)
+GET {{baseUrl}}/budgets/{{budget_id}}/status
+Authorization: Bearer {{access_token}}
+
+### List all budgets currently at/over their alert threshold
+GET {{baseUrl}}/budgets/alerts
+Authorization: Bearer {{access_token}}
+
+### Update a budget
+PUT {{baseUrl}}/budgets/{{budget_id}}
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "amount": "550.00"
+}
+
+### Delete a budget
+DELETE {{baseUrl}}/budgets/{{budget_id}}
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### FINANCIAL GOALS
+### ============================================================
+
+### Create a goal
+# @name createGoal
+POST {{baseUrl}}/goals
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "name": "Emergency Fund",
+  "description": "Three months of living expenses",
+  "target_amount": "10000.00",
+  "target_date": "2027-06-01"
+}
+
+@goal_id = {{createGoal.response.body.$.id}}
+
+### List goals
+GET {{baseUrl}}/goals
+Authorization: Bearer {{access_token}}
+
+### Filter goals by status
+GET {{baseUrl}}/goals?status=in_progress
+Authorization: Bearer {{access_token}}
+
+### Contribute funds toward a goal
+POST {{baseUrl}}/goals/{{goal_id}}/contribute
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "amount": "500.00",
+  "transaction_date": "2026-07-05"
+}
+
+### Get goal progress (pace, projection, required contribution)
+GET {{baseUrl}}/goals/{{goal_id}}/progress
+Authorization: Bearer {{access_token}}
+
+### Update a goal
+PUT {{baseUrl}}/goals/{{goal_id}}
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "target_amount": "12000.00"
+}
+
+### Delete a goal (fails if it has linked transactions)
+DELETE {{baseUrl}}/goals/{{goal_id}}
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### DASHBOARD
+### ============================================================
+
+### Current month overview
+GET {{baseUrl}}/dashboard/overview
+Authorization: Bearer {{access_token}}
+
+### Cash flow over the last 6 months
+GET {{baseUrl}}/dashboard/cash-flow?months=6
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### ANALYTICS
+### ============================================================
+
+### Spending breakdown by category (current month by default)
+GET {{baseUrl}}/analytics/spending-by-category
+Authorization: Bearer {{access_token}}
+
+### Spending breakdown for a custom date range
+GET {{baseUrl}}/analytics/spending-by-category?start_date=2026-01-01&end_date=2026-06-30
+Authorization: Bearer {{access_token}}
+
+### Income vs. expense trend
+GET {{baseUrl}}/analytics/income-vs-expense?months=6
+Authorization: Bearer {{access_token}}
+
+### Savings rate trend
+GET {{baseUrl}}/analytics/savings-rate?months=6
+Authorization: Bearer {{access_token}}
+
+### Category spending trends (this month vs. last month)
+GET {{baseUrl}}/analytics/trends
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### REPORTS
+### ============================================================
+
+### Full monthly report
+GET {{baseUrl}}/reports/monthly/2026/7
+Authorization: Bearer {{access_token}}
+
+### Yearly report
+GET {{baseUrl}}/reports/yearly/2026
+Authorization: Bearer {{access_token}}
+
+### Export transactions as CSV
+GET {{baseUrl}}/reports/export/csv?start_date=2026-01-01&end_date=2026-12-31
+Authorization: Bearer {{access_token}}
+
+### ============================================================
+### FINANCIAL SIMULATOR
+### ============================================================
+
+### Project savings growth with compound interest
+POST {{baseUrl}}/simulator/projection
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "starting_balance": "1000.00",
+  "monthly_contribution": "300.00",
+  "annual_interest_rate": 0.045,
+  "months": 24
+}
+
+### Goal planner — given a monthly contribution, find months needed
+POST {{baseUrl}}/simulator/goal-planner
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "target_amount": "10000.00",
+  "current_amount": "3200.00",
+  "monthly_contribution": "400.00",
+  "annual_interest_rate": 0.03
+}
+
+### Goal planner — given a target date, find required monthly contribution
+POST {{baseUrl}}/simulator/goal-planner
+Content-Type: application/json
+Authorization: Bearer {{access_token}}
+
+{
+  "target_amount": "10000.00",
+  "current_amount": "3200.00",
+  "target_date": "2027-06-01"
+}
