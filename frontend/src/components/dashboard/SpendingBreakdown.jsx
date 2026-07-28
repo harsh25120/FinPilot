@@ -36,38 +36,30 @@ export default function SpendingBreakdown({
 
   return (
     <div className="flex flex-col items-center gap-6 sm:flex-row">
-      <div
-        className={`mx-auto shrink-0 ${
-          compact
-            ? 'h-[170px] w-[170px]'
-            : 'h-[220px] w-[220px]'
-        }`}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={categories}
-            dataKey="amount"
-            nameKey="category_name"
-            innerRadius={compact ? 45 : 60}
-            outerRadius={compact ? 70 : 95}
-            paddingAngle={2}
-            strokeWidth={0}
-          >
-            {categories.map((entry) => (
-              <Cell key={entry.category_id} fill={entry.color || '#6366F1'} />
-            ))}
-          </Pie>
-          <Tooltip content={<CustomTooltip currency={currency} />} />
-        </PieChart>
-      </ResponsiveContainer>
-      </div>
+      {!compact && (
+        <div className="mx-auto h-[220px] w-[220px] shrink-0">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={categories}
+                dataKey="amount"
+                nameKey="category_name"
+                innerRadius={60}
+                outerRadius={95}
+                paddingAngle={2}
+                strokeWidth={0}
+              >
+                {categories.map((entry) => (
+                  <Cell key={entry.category_id} fill={entry.color || '#6366F1'} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip currency={currency} />} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
-      <ul
-        className={`w-full flex-1 ${
-          compact ? 'space-y-2.5' : 'space-y-4'
-        }`}
-      >
+      <ul className={`w-full ${compact ? 'space-y-3' : 'flex-1 space-y-4'}`}>
         {categories.map((category) => (
           <li key={category.category_id} className="flex items-center gap-2.5">
             <CategoryIcon icon={category.icon} color={category.color} size="sm" />
