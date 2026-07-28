@@ -21,7 +21,6 @@ export const GOAL_STATUSES = [
 ]
 
 export const SORT_OPTIONS = [
-  { value: 'date', label: 'Date' },
   { value: 'amount', label: 'Amount' },
   { value: 'created_at', label: 'Date added' },
 ]

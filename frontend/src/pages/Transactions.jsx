@@ -33,7 +33,7 @@ const INITIAL_FILTERS = {
   date_to: '',
   min_amount: '',
   max_amount: '',
-  sort_by: 'date',
+  sort_by: 'created_at',
   sort_order: 'desc',
 }
 
