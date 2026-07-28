@@ -2,21 +2,90 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- Basic -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="FinPilot — track income, expenses, budgets, and savings goals." />
-    <title>FinPilot</title>
+
+    <title>FinPilot | Personal Finance Management</title>
+
+    <meta
+      name="description"
+      content="A full-stack personal finance management application built with React, FastAPI, and PostgreSQL. Track income, expenses, budgets, savings goals, analytics, financial reports, and more."
+    />
+
+    <meta name="author" content="Harsh Dwivedi" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0f172a" />
+
+    <link
+      rel="canonical"
+      href="https://finpilot-ashy.vercel.app/"
+    />
+
+    <!-- Open Graph -->
+    <meta
+      property="og:title"
+      content="FinPilot | Personal Finance Management"
+    />
+
+    <meta
+      property="og:description"
+      content="Track income, expenses, budgets, savings goals, analytics, financial reports, and more with FinPilot."
+    />
+
+    <meta
+      property="og:image"
+      content="https://finpilot-ashy.vercel.app/og-image.png"
+    />
+
+    <meta
+      property="og:url"
+      content="https://finpilot-ashy.vercel.app/"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="FinPilot" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <meta
+      name="twitter:title"
+      content="FinPilot | Personal Finance Management"
+    />
+
+    <meta
+      name="twitter:description"
+      content="A full-stack personal finance management application built with React, FastAPI, and PostgreSQL."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://finpilot-ashy.vercel.app/og-image.png"
+    />
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
     <script>
       // Applied before React mounts so there's no flash of the wrong theme.
       try {
         const stored = localStorage.getItem("finpilot-theme");
         const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
         if (stored === "dark" || (!stored && prefersDark)) {
           document.documentElement.classList.add("dark");
         }
@@ -25,6 +94,7 @@
       }
     </script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
