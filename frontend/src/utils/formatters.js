@@ -1,6 +1,3 @@
-// The backend sends money as decimal strings (e.g. "1500.00") to avoid
-// floating-point rounding issues, and plain dates as "YYYY-MM-DD" strings
-// (no time/timezone). These helpers format both for display.
 const CURRENCY_LOCALES = {
   INR: 'en-IN',
   USD: 'en-US',
@@ -11,27 +8,22 @@ const CURRENCY_LOCALES = {
   JPY: 'ja-JP',
 }
 
-export function formatCurrency(amount, currency = 'USD') {
-  const value = typeof amount === 'string' ? parseFloat(amount) : amount
-  if (value === null || value === undefined || Number.isNaN(value)) return '—'
-
-  try {
-    const locale = CURRENCY_LOCALES[currency] || 'en-US'
-
-    return new Intl.NumberFormat(locale, {
-      style: 'currency',
+export function formatCurrency(
+  amount,
+  currency = "INR",
+  showDecimals = true
+) {
+  return new Intl.NumberFormat(
+    CURRENCY_LOCALES[currency] || "en-US",
+    {
+      style: "currency",
       currency,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value)
-  } catch {
-    return `${value.toFixed(2)} ${currency}`
-  }
+      minimumFractionDigits: showDecimals ? 2 : 0,
+      maximumFractionDigits: showDecimals ? 2 : 0,
+    }
+  ).format(Number(amount))
 }
 
-// Parses a plain "YYYY-MM-DD" date into a *local* Date at midnight. Using
-// `new Date("2026-07-01")` directly parses it as UTC midnight, which can
-// display as the previous day for anyone west of UTC — this avoids that.
 export function parseDateOnly(dateString) {
   if (!dateString) return null
   const [year, month, day] = dateString.split('-').map(Number)

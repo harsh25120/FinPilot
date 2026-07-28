@@ -78,17 +78,15 @@ export default function Dashboard() {
   return (
     <div>
       <PageHeader
-        title={firstName ? `Welcome back, ${firstName} 👋` : 'Dashboard'}
+        title={firstName ? `Welcome back, ${firstName} 👋` : "Dashboard"}
         description={
-          overview.net_savings >= 0
-            ? `You've saved ${formatCurrency(
-                overview.net_savings,
-                currency
-              )} this month.`
-            : `You've spent ${formatCurrency(
-                Math.abs(overview.net_savings),
-                currency
-              )} more than you've earned this month.`
+          overview.total_balance < 0
+            ? `Your account balance is negative. Time to slow down on spending.`
+            : overview.net_savings > 0
+            ? `Great job! You're saving money this month. Keep it up.`
+            : overview.net_savings === 0
+            ? `You've broken even this month.`
+            : `You're spending more than you're earning this month.`
         }
       />
 
@@ -106,31 +104,38 @@ export default function Dashboard() {
         </Link>
       )}
 
-      <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Current balance"
-          value={formatCurrency(overview.total_balance, currency)}
+          value={formatCurrency(overview.total_balance, currency, false)}
+          subtext={
+            overview.total_balance < 0
+              ? "⚠ Expenses exceed income"
+              : undefined
+          }
           icon={Wallet}
-          color="indigo"
+          color={overview.total_balance < 0 ? "red" : "indigo"}
+          danger={overview.total_balance < 0}
         />
         <StatCard
           label="Monthly income"
-          value={formatCurrency(overview.total_income, currency)}
+          value={formatCurrency(overview.total_income, currency, false)}
           icon={TrendingUp}
           color="green"
         />
         <StatCard
           label="Monthly expenses"
-          value={formatCurrency(overview.total_expense, currency)}
+          value={formatCurrency(overview.total_expense, currency, false)}
           icon={TrendingDown}
           color="red"
         />
         <StatCard
           label="Net savings"
-          value={formatCurrency(overview.net_savings, currency)}
+          value={formatCurrency(overview.net_savings, currency, false)}
           subtext={`${formatPercent(overview.savings_rate)} savings rate`}
           icon={PiggyBank}
-          color="amber"
+          color={overview.net_savings < 0 ? "red" : "amber"}
+          danger={overview.net_savings < 0}
         />
       </div>
 

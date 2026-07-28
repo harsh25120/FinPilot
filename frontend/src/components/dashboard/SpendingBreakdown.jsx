@@ -1,4 +1,3 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts'
 import { formatCurrency } from '../../utils/formatters'
 import useAuth from '../../hooks/useAuth'
 import CategoryIcon from '../ui/CategoryIcon'
@@ -35,45 +34,53 @@ export default function SpendingBreakdown({
   }
 
   return (
-    <div className="flex flex-col items-center gap-6 sm:flex-row">
-      {!compact && (
-        <div className="mx-auto h-[220px] w-[220px] shrink-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={categories}
-                dataKey="amount"
-                nameKey="category_name"
-                innerRadius={60}
-                outerRadius={95}
-                paddingAngle={2}
-                strokeWidth={0}
-              >
-                {categories.map((entry) => (
-                  <Cell key={entry.category_id} fill={entry.color || '#6366F1'} />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip currency={currency} />} />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-      )}
-
-      <ul className={`w-full ${compact ? 'space-y-3' : 'flex-1 space-y-4'}`}>
+    <div className="w-full">
+      <ul
+        className={compact ? "space-y-3" : "space-y-5"}
+        style={{ marginTop: 0 }}
+      >
         {categories.map((category) => (
-          <li key={category.category_id} className="flex items-center gap-2.5">
-            <CategoryIcon icon={category.icon} color={category.color} size="sm" />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm text-slate-700 dark:text-slate-300">
-                {category.category_name}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
+          <li
+            key={category.category_id}
+            className="space-y-2 first:mt-0"
+          >
+
+            {/* Top row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <CategoryIcon
+                  icon={category.icon}
+                  color={category.color}
+                  size="sm"
+                />
+
+                <p className="font-medium text-slate-200">
+                  {category.category_name}
+                </p>
+              </div>
+
+              <p className="font-semibold text-white">
                 {formatCurrency(category.amount, currency)}
               </p>
-              <p className="text-xs text-slate-400">{category.percentage.toFixed(0)}%</p>
             </div>
+
+            {/* Bottom row */}
+            <div className="pl-11">
+              <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${category.percentage}%`,
+                    backgroundColor: category.color,
+                  }}
+                />
+              </div>
+
+              <p className="mt-1 text-right text-xs text-slate-400">
+                {category.percentage.toFixed(0)}%
+              </p>
+            </div>
+
           </li>
         ))}
       </ul>

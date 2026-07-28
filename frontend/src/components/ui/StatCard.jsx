@@ -2,6 +2,7 @@ import Card from "./Card";
 
 const ICON_COLORS = {
   blue: "bg-blue-500/10 text-blue-500",
+  indigo: "bg-indigo-500/10 text-indigo-500",
   green: "bg-green-500/10 text-green-500",
   red: "bg-red-500/10 text-red-500",
   amber: "bg-amber-500/10 text-amber-500",
@@ -14,31 +15,59 @@ const StatCard = ({
   subtext,
   icon: Icon,
   color = "blue",
+  danger = false,
 }) => {
   return (
-    <Card className="flex items-start justify-between">
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    <Card
+      className={`
+        group
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:shadow-xl
+        hover:shadow-black/20
+        ${danger ? "border-red-400/25 bg-red-500/[0.03]" : ""}
+      `}
+    >
+      <div className="mb-6 flex items-start justify-between">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
           {label}
         </p>
 
-        <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-          {value}
-        </p>
-
-        {subtext && (
-          <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-            {subtext}
-          </p>
+        {Icon && (
+          <div
+            className={`
+              flex h-9 w-9 items-center justify-center rounded-xl
+              transition-transform duration-300
+              group-hover:scale-110
+              ${ICON_COLORS[color]}
+            `}
+          >
+            <Icon size={18} />
+          </div>
         )}
       </div>
 
-      {Icon && (
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${ICON_COLORS[color]}`}
+      <p
+        className="whitespace-nowrap text-3xl font-bold tracking-tight"
+      >
+        {value}
+      </p>
+
+      {subtext && (
+        <p
+          className={`
+            mt-3
+            text-sm
+            ${
+              danger
+                ? "font-medium text-red-500 dark:text-red-400"
+                : "text-slate-400"
+            }
+          `}
         >
-          <Icon size={18} />
-        </div>
+          {subtext}
+        </p>
       )}
     </Card>
   );

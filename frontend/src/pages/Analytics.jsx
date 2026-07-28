@@ -7,7 +7,6 @@ import { formatPercent } from '../utils/formatters'
 import PageHeader from '../components/ui/PageHeader'
 import Card from '../components/ui/Card'
 import Select from '../components/ui/Select'
-import Input from '../components/ui/Input'
 import Spinner from '../components/ui/Spinner'
 import ErrorState from '../components/ui/ErrorState'
 import EmptyState from '../components/ui/EmptyState'
@@ -19,6 +18,23 @@ import TrendsList from '../components/analytics/TrendsList'
 import { Wallet2 } from 'lucide-react'
 
 const MONTH_OPTIONS = [3, 6, 12]
+
+function getDateRange(months) {
+  const end = new Date()
+  const start = new Date()
+
+  if (months === 1) {
+    start.setDate(1)
+  } else {
+    start.setMonth(start.getMonth() - (months - 1))
+    start.setDate(1)
+  }
+
+  return {
+    start_date: start.toISOString().split("T")[0],
+    end_date: end.toISOString().split("T")[0],
+  }
+}
 
 export default function Analytics() {
   const [spending, setSpending] = useState(null)
@@ -40,7 +56,6 @@ export default function Analytics() {
   ).length
 
   const [months, setMonths] = useState(6)
-  const [dateRange, setDateRange] = useState({ start_date: '', end_date: '' })
 
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -48,17 +63,25 @@ export default function Analytics() {
   async function loadAll() {
     setIsLoading(true)
     setError('')
-    try {
-      const spendingParams = {}
-      if (dateRange.start_date) spendingParams.start_date = dateRange.start_date
-      if (dateRange.end_date) spendingParams.end_date = dateRange.end_date
 
-      const [spendingData, flowData, rateData, trendsData, budgetsData] = await Promise.all([
+    try {
+      const spendingParams = getDateRange(months)
+
+      const [
+        spendingData,
+        flowData,
+        rateData,
+        trendsData,
+        budgetsData,
+      ] = await Promise.all([
         analyticsService.getSpendingByCategory(spendingParams),
         analyticsService.getIncomeVsExpense(months),
         analyticsService.getSavingsRate(months),
         analyticsService.getTrends(),
-        budgetService.listBudgets({ active_only: true, page_size: 50 }),
+        budgetService.listBudgets({
+          active_only: true,
+          page_size: 50,
+        }),
       ])
 
       setSpending(spendingData)
@@ -69,6 +92,7 @@ export default function Analytics() {
       const statuses = await Promise.all(
         budgetsData.items.map((b) => budgetService.getBudgetStatus(b.id))
       )
+
       setBudgetStatuses(statuses)
     } catch (err) {
       setError(getErrorMessage(err))
@@ -80,7 +104,7 @@ export default function Analytics() {
   useEffect(() => {
     loadAll()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [months, dateRange.start_date, dateRange.end_date])
+  }, [months])
 
   if (isLoading) {
     return (
@@ -96,19 +120,28 @@ export default function Analytics() {
 
   return (
     <div>
-      <PageHeader title="Analytics" description="Deeper insight into how you earn, spend, and save." />
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <PageHeader
+          title="Analytics"
+          description="Deeper insight into how you earn, spend, and save."
+        />
+
+        <Select
+          value={months}
+          onChange={(e) => setMonths(Number(e.target.value))}
+          className="w-44"
+        >
+          <option value={1}>This Month</option>
+          <option value={3}>Last 3 Months</option>
+          <option value={6}>Last 6 Months</option>
+          <option value={12}>Last 12 Months</option>
+        </Select>
+      </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+          <div className="mb-4">
             <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Income vs. expense</h2>
-            <Select value={months} onChange={(e) => setMonths(Number(e.target.value))} className="w-36">
-              {MONTH_OPTIONS.map((m) => (
-                <option key={m} value={m}>
-                  Last {m} months
-                </option>
-              ))}
-            </Select>
           </div>
           <CashFlowChart points={incomeVsExpense.points} />
         </Card>
@@ -145,24 +178,28 @@ export default function Analytics() {
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Spending by category</h2>
-            <div className="flex gap-2">
-              <Input
-                type="date"
-                value={dateRange.start_date}
-                onChange={(e) => setDateRange((prev) => ({ ...prev, start_date: e.target.value }))}
-                className="w-40"
-              />
-              <Input
-                type="date"
-                value={dateRange.end_date}
-                onChange={(e) => setDateRange((prev) => ({ ...prev, end_date: e.target.value }))}
-                className="w-40"
-              />
+
+          <div className="mb-6">
+            <div>
+              <h2 className="text-lg font-semibold text-white">
+                Spending by category
+              </h2>
+
+              <p className="mt-1 text-sm text-slate-400">
+                {spending.breakdown.length} categories •{" "}
+                {spending.breakdown.reduce(
+                  (sum, c) => sum + Number(c.amount),
+                  0
+                ).toLocaleString("en-IN", {
+                  style: "currency",
+                  currency: "INR",
+                })} spent
+              </p>
             </div>
           </div>
+
           <SpendingBreakdown categories={spending.breakdown} />
+
         </Card>
 
         <Card>
