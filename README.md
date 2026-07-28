@@ -3,43 +3,74 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python)
-![License](https://img.shields.io/badge/License-MIT-green)
 
 FinPilot is a full-stack personal finance management application built using React, FastAPI, and PostgreSQL. It enables users to track income and expenses, manage budgets, save toward financial goals, analyze spending trends, and generate financial reports through a modern, responsive dashboard.
+
+## Live Demo
+
+🌐 Live Application: https://finpilot-ashy.vercel.app/
+
+📚 Interactive Swagger Documentation: https://finpilot-api-ypf6.onrender.com/docs
+
+> **Note:** The backend is hosted on Render's free tier, so the first request may take 30–60 seconds if the service is waking up.
+
+![FinPilot Demo](docs/screenshots/demo.gif)
 
 ## Key Features
 
 - 🔐 JWT Authentication with refresh token rotation
 - 💸 Income, expense, and transfer management
 - 📊 Interactive analytics dashboard
-- 📅 Budget tracking with spending alerts
+- 📅 Smart budget tracking with configurable spending alerts
 - 🎯 Goal-based savings tracker
-- 📈 Monthly & yearly financial reports
+- 📈 Monthly & yearly financial reports with CSV export
 - 🧮 Compound interest & goal planning simulator
 
-## Dashboard
+## Architecture
 
-![Dashboard](docs/screenshots/dashboard.png)
+```text
+                          ┌─────────────────────┐
+                          │       Browser       │
+                          └──────────┬──────────┘
+                                     │
+                                     │ HTTPS
+                                     ▼
+                        ┌────────────────────────────┐
+                        │   React 19 + Vite (Vercel) │
+                        │                            │
+                        │ • React Router             │
+                        │ • Axios                    │
+                        │ • Recharts                 │
+                        │ • Tailwind CSS             │
+                        └───────────────────────────-┘
+                                    │
+                                REST API (JWT)
+                                    │
+                                    ▼
+                        ┌─────────────────────────────┐
+                        │     FastAPI (Render)        │
+                        └──────────┬──────────────────┘
+                                   │
+            ┌──────────────────────┼──────────────────────┐
+            ▼                      ▼                      ▼
+        ┌─────────────┐      ┌────────────────┐     ┌────────────────┐
+        │   Routers   │ ───► │    Services    │ ───►│ SQLAlchemy ORM │
+        │ (Endpoints) │      │ Business Logic │     │                │
+        └─────────────┘      └────────────────┘     └───────┬────────┘
+                                                            │
+                                                            ▼
+                                                    ┌────────────────┐
+                                                    │ PostgreSQL DB  │
+                                                    └────────────────┘
+```
 
-## Transactions
+### Request Flow
 
-![Transactions](docs/screenshots/transactions.png)
-
-## Budgets
-
-![Budgets](docs/screenshots/budgets.png)
-
-## Analytics
-
-![Analytics](docs/screenshots/analytics.png)
-
-## Goals
-
-![Goals](docs/screenshots/goals.png)
-
-## Reports
-
-![Reports](docs/screenshots/reports.png)
+1. The React frontend sends authenticated REST API requests using Axios.
+2. FastAPI routers validate requests and delegate work to service classes.
+3. Services contain the application's business logic and interact with SQLAlchemy models.
+4. SQLAlchemy communicates with PostgreSQL to persist and retrieve data.
+5. Responses are returned as JSON and rendered by the React frontend.
 
 
 ## Project Highlights
@@ -52,7 +83,6 @@ FinPilot is a full-stack personal finance management application built using Rea
 - Monthly and yearly financial reports with CSV export
 - Compound interest and goal-planning simulator
 - Responsive React frontend with dark mode support
-- Comprehensive FastAPI backend with 96 automated integration tests
 
 ## Tech Stack
 
@@ -63,10 +93,48 @@ FinPilot is a full-stack personal finance management application built using Rea
 | Database | PostgreSQL, Alembic |
 | DevOps | Docker, Docker Compose |
 | Testing | Pytest |
+| Deployment | Render, Vercel |
+
+## Deployment
+
+| Component | Platform |
+|----------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | PostgreSQL |
+
+The frontend communicates with the deployed FastAPI backend using REST APIs. Automatic deployments are triggered whenever changes are pushed to the main branch via GitHub.
+
+
+## Screenshots
+
+**Dashboard**
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+**Transactions**
+
+![Transactions](docs/screenshots/transactions.png)
+
+**Budgets**
+
+![Budgets](docs/screenshots/budgets.png)
+
+**Analytics**
+
+![Analytics](docs/screenshots/analytics.png)
+
+**Goals**
+
+![Goals](docs/screenshots/goals.png)
+
+**Reports**
+
+![Reports](docs/screenshots/reports.png)
 
 ## Why I Built This
 
-FinPilot was built to strengthen my full-stack development skills by designing and implementing a complete finance management application from scratch. The project focuses on clean architecture, authentication, business logic, database design, API development, and frontend integration rather than isolated CRUD functionality. A finance tracker forced me to think about things a simple CRUD app doesn't: how to keep a goal's balance in sync when a transaction changes, how to structure JWT auth properly, how to design a schema that supports budgets and analytics without the queries turning into a mess, and how to wire all of that up to a frontend that actually uses it. It's the project I'd point to if someone asked what I can build with React, FastAPI, and PostgreSQL.
+FinPilot was built to strengthen my full-stack development skills by designing and implementing a complete finance management application from scratch. The project focuses on clean architecture, authentication, business logic, database design, API development, and frontend integration rather than isolated CRUD functionality. A finance tracker forced me to think about things a simple CRUD app doesn't: how to keep a goal's balance in sync when a transaction changes, how to structure JWT auth properly, how to design a schema that supports budgets and analytics without the queries turning into a mess, and how to wire all of that up to a frontend that actually uses it. The goal wasn't simply to build another CRUD application, but to design a system with realistic business rules, layered architecture, authentication, analytics, and a production-ready deployment.
 
 ## Demo Account
 
@@ -175,46 +243,61 @@ psql -c "CREATE DATABASE finpilot_test OWNER finpilot;"
 
 ## Project Structure
 
-- `/app` – FastAPI backend
-- `/frontend` – React SPA
-- `/tests` – Integration tests
-- `/docs` – API examples and screenshots
-- `/scripts` – Demo data generation
-
-## Architecture
-
 ```text
 finpilot/
 ├── app/
-│   ├── main.py          FastAPI app, middleware, exception handlers
-│   ├── config.py        Settings (env-driven)
-│   ├── database.py      SQLAlchemy engine/session
-│   ├── models/          ORM models
-│   ├── schemas/         Pydantic request/response schemas
-│   ├── routers/         API endpoints (thin controllers)
-│   ├── services/        Business logic
-│   └── utils/           Security, pagination, enums, etc.
-├── alembic/             Database migrations
-├── tests/               Pytest suite
-├── frontend/            React + Vite app
+│   ├── main.py              # FastAPI application entry point
+│   ├── config.py            # Environment configuration
+│   ├── database.py          # SQLAlchemy engine & session
+│   ├── dependencies.py      # Shared FastAPI dependencies
+│   ├── models/              # SQLAlchemy ORM models
+│   ├── schemas/             # Pydantic request/response schemas
+│   ├── routers/             # REST API endpoints
+│   ├── services/            # Business logic layer
+│   └── utils/               # Security, validation, pagination, helpers
+│
+├── alembic/                 # Database migrations
+├── frontend/
+│   ├── public/              # Static assets
+│   ├── src/
+│   │   ├── components/      # Reusable UI components
+│   │   ├── pages/           # Application pages
+│   │   ├── services/        # API communication layer
+│   │   ├── hooks/           # Custom React hooks
+│   │   ├── utils/           # Frontend utilities
+│   │   ├── contexts/        # Authentication & theme context
+│   │   └── layout/          # Shared layouts
+│   └── package.json
+│
+├── docs/                    # Screenshots & API collections
+├── scripts/                 # Seed data & startup scripts
+├── tests/                   # Integration test suite
 ├── Dockerfile
 ├── docker-compose.yml
-└── requirements.txt
+├── requirements.txt
+└── README.md
 ```
 
-Routers only handle HTTP concerns and call into services for the actual logic; services never import FastAPI. Keeping models, schemas, and business logic in separate layers means the database structure and the API contract can change without dragging each other along.
+The backend follows a layered architecture:
+
+- **Routers** expose REST API endpoints and handle HTTP concerns.
+- **Services** contain the application's business logic.
+- **Models** define the database schema using SQLAlchemy ORM.
+- **Schemas** validate request and response data using Pydantic.
+- **Utilities** provide shared functionality such as authentication, validation, pagination, and helper functions.
+
+This separation keeps the codebase modular, maintainable, and easy to extend.
 
 ## Design Decisions
 
-- **Transfers are goal contributions.** Instead of modeling separate bank accounts, a `transfer` transaction links directly to a goal and represents money moved toward it — simpler, and it matches what the app is actually for.
+- **Transfers are modeled as goal contributions** instead of bank-account transfers, keeping the domain model focused on savings goals.
 - **Budget spend is computed, not cached.** A budget's "spent" amount is calculated from the transactions table on every read, so it can't drift out of sync with what actually happened.
-- **Goal balances update incrementally.** `current_amount` is adjusted whenever a linked transfer is created, updated, or deleted — all three paths go through one shared function, so that logic only exists in one place.
-- **Refresh tokens are opaque and revocable.** They're random strings, not JWTs — only a hash is stored, so a stolen database dump doesn't expose usable tokens, and a single token can be revoked without logging out every device.
+- **Goal balances update incrementally.** `current_amount` is adjusted whenever a linked transfer is created, updated, or deleted.
+- **Refresh tokens are opaque and revocable.** They're random strings, not JWTs.
 
 ## Future Improvements
 
-- AWS deployment
+- Migrate infrastructure to AWS
 - CI/CD pipeline
 - Email notifications
-- Multi-currency support
 - Recurring transactions
