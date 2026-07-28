@@ -143,7 +143,10 @@ export default function Dashboard() {
           <h2 className="mb-4 text-sm font-semibold text-slate-900 dark:text-slate-100">
             Top spending this month
           </h2>
-          <SpendingBreakdown categories={overview.top_spending_categories} />
+          <SpendingBreakdown
+            categories={overview.top_spending_categories}
+            compact
+          />
         </Card>
       </div>
 

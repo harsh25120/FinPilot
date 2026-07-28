@@ -17,7 +17,10 @@ function CustomTooltip({ active, payload, currency }) {
   )
 }
 
-export default function SpendingBreakdown({ categories }) {
+export default function SpendingBreakdown({
+  categories,
+  compact = false,
+}) {
   const { user } = useAuth()
   const currency = user?.preferred_currency || 'USD'
 
@@ -32,15 +35,22 @@ export default function SpendingBreakdown({ categories }) {
   }
 
   return (
-    <div className="flex flex-col items-center gap-4 sm:flex-row">
-      <ResponsiveContainer width="100%" height={180} className="sm:max-w-[180px]">
+    <div className="flex flex-col items-center gap-6 sm:flex-row">
+      <div
+        className={`mx-auto shrink-0 ${
+          compact
+            ? 'h-[170px] w-[170px]'
+            : 'h-[220px] w-[220px]'
+        }`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
             data={categories}
             dataKey="amount"
             nameKey="category_name"
-            innerRadius={50}
-            outerRadius={80}
+            innerRadius={compact ? 45 : 60}
+            outerRadius={compact ? 70 : 95}
             paddingAngle={2}
             strokeWidth={0}
           >
@@ -51,8 +61,13 @@ export default function SpendingBreakdown({ categories }) {
           <Tooltip content={<CustomTooltip currency={currency} />} />
         </PieChart>
       </ResponsiveContainer>
+      </div>
 
-      <ul className="w-full flex-1 space-y-2.5">
+      <ul
+        className={`w-full flex-1 ${
+          compact ? 'space-y-2.5' : 'space-y-4'
+        }`}
+      >
         {categories.map((category) => (
           <li key={category.category_id} className="flex items-center gap-2.5">
             <CategoryIcon icon={category.icon} color={category.color} size="sm" />
