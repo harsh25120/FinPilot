@@ -87,7 +87,11 @@ def apply_goal_delta(db: Session, goal: Goal, delta: Decimal) -> None:
 
 
 def contribute_to_goal(
-    db: Session, user_id: int, goal_id: int, data: GoalContribution
+    db: Session,
+    user_id: int,
+    goal_id: int,
+    data: GoalContribution,
+    currency: str,
 ) -> Goal:
     goal = get_goal_or_404(db, user_id, goal_id)
     if goal.status != GoalStatus.in_progress:
@@ -99,6 +103,7 @@ def contribute_to_goal(
         goal_id=goal.id,
         type=TransactionType.transfer,
         amount=data.amount,
+        currency=currency,
         description=data.description or f"Contribution to {goal.name}",
         transaction_date=data.transaction_date or date.today(),
     )
