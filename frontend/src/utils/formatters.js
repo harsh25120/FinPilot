@@ -1,20 +1,30 @@
 // The backend sends money as decimal strings (e.g. "1500.00") to avoid
 // floating-point rounding issues, and plain dates as "YYYY-MM-DD" strings
 // (no time/timezone). These helpers format both for display.
+const CURRENCY_LOCALES = {
+  INR: 'en-IN',
+  USD: 'en-US',
+  EUR: 'de-DE',
+  GBP: 'en-GB',
+  AUD: 'en-AU',
+  CAD: 'en-CA',
+  JPY: 'ja-JP',
+}
 
 export function formatCurrency(amount, currency = 'USD') {
   const value = typeof amount === 'string' ? parseFloat(amount) : amount
   if (value === null || value === undefined || Number.isNaN(value)) return '—'
 
   try {
-    return new Intl.NumberFormat('en-US', {
+    const locale = CURRENCY_LOCALES[currency] || 'en-US'
+
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value)
   } catch {
-    // Intl throws on a currency code it doesn't recognize.
     return `${value.toFixed(2)} ${currency}`
   }
 }

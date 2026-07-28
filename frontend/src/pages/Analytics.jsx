@@ -27,16 +27,16 @@ export default function Analytics() {
   const [trends, setTrends] = useState(null)
   const [budgetStatuses, setBudgetStatuses] = useState([])
   const highestCategory =
-    spending?.categories?.length
-      ? spending.categories.reduce((max, category) =>
-          category.amount > max.amount ? category : max
-        ).name
-      : '—'
+  spending?.breakdown?.length
+    ? spending.breakdown.reduce((max, category) =>
+        Number(category.amount) > Number(max.amount) ? category : max
+      ).category_name
+    : '—'
 
   const averageSavingsRate = savingsRate?.average_savings_rate ?? 0
 
   const budgetAlerts = budgetStatuses.filter(
-    (budget) => budget.alert_triggered
+    (budget) => budget.is_alert || budget.is_exceeded
   ).length
 
   const [months, setMonths] = useState(6)

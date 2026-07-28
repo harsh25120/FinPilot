@@ -38,7 +38,10 @@ export default function CashFlowChart({ points }) {
 
   return (
     <ResponsiveContainer width="100%" height={280}>
-      <AreaChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+      <AreaChart
+        data={data}
+        margin={{ top: 5, right: 20, left: 20, bottom: 0 }}
+      >
         <defs>
           <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#22c55e" stopOpacity={0.25} />
@@ -62,7 +65,7 @@ export default function CashFlowChart({ points }) {
           className="text-slate-400"
           axisLine={false}
           tickLine={false}
-          width={60}
+          width={45}
           tickFormatter={(value) => formatCurrency(value, currency).replace(/\.00$/, '')}
         />
         <Tooltip content={<CustomTooltip currency={currency} />} />

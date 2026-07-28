@@ -16,7 +16,10 @@ export default function SavingsRateChart({ points }) {
 
   return (
     <ResponsiveContainer width="100%" height={240}>
-      <LineChart data={data} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
+      <LineChart
+        data={data}
+        margin={{ top: 5, right: 20, left: 20, bottom: 0 }}
+      >
         <CartesianGrid strokeDasharray="3 3" className="stroke-slate-100 dark:stroke-slate-800" />
         <XAxis
           dataKey="period"
@@ -30,7 +33,7 @@ export default function SavingsRateChart({ points }) {
           className="text-slate-400"
           axisLine={false}
           tickLine={false}
-          width={45}
+          width={20}
           tickFormatter={(v) => `${v}%`}
         />
         <Tooltip content={<CustomTooltip />} />
